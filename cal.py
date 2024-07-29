@@ -58,3 +58,51 @@ def detect_click(x, y):
                 result += label
 
 create_buttons()
+
+cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+
+while cap.isOpened():
+    success, img = cap.read()
+    if not success:
+        break
+
+    img = cv2.flip(img, 1)
+
+    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    results = hands.process(img_rgb)
+
+    draw_buttons(img)
+
+    screen_x_start, screen_y_start = 540, 50  
+    screen_x_end, screen_y_end = screen_x_start + 4 * button_size, screen_y_start + 200
+    cv2.rectangle(img, (screen_x_start, screen_y_start), (screen_x_end, screen_y_end), (255, 255, 255), -1)
+
+    max_display_length = 15  
+    display_result = result[-max_display_length:] if len(result) > max_display_length else result
+    cv2.putText(img, display_result, (screen_x_start + 10, screen_y_start + 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 3)
+
+    if results.multi_hand_landmarks:
+        for hand_landmarks in results.multi_hand_landmarks:
+            mp_draw.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+
+            index_finger_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
+            middle_finger_tip = hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP]
+
+            h, w, c = img.shape
+            index_finger_tip = (int(index_finger_tip.x * w), int(index_finger_tip.y * h))
+            middle_finger_tip = (int(middle_finger_tip.x * w), int(middle_finger_tip.y * h))
+
+            distance = np.linalg.norm(np.array(index_finger_tip) - np.array(middle_finger_tip))
+            if distance < 30:
+                detect_click(index_finger_tip[0], index_finger_tip[1])
+
+    cv2.imshow("Virtual Calculator", img)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
