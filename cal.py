@@ -13,3 +13,16 @@ result = ""
 last_click_time = 0
 click_cooldown = 1 
 
+def create_buttons():
+    global button_positions
+    x_start, y_start = 540, 300  
+    labels = ['7', '8', '9', '/',
+              '4', '5', '6', '*',
+              '1', '2', '3', '-',
+              '0', 'C', '=', '+']
+    for i in range(4):
+        for j in range(4):
+            x = x_start + j * button_size
+            y = y_start + i * button_size
+            button_positions.append((x, y, labels[i * 4 + j]))
+
