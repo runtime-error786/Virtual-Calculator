@@ -36,3 +36,25 @@ def draw_buttons(img):
 
         cv2.putText(img, label, (x + 30, y + 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 3)
 
+def detect_click(x, y):
+    global result, last_click_time
+    current_time = time.time()
+    if current_time - last_click_time < click_cooldown:
+        return
+    for (bx, by, label) in button_positions:
+        if bx < x < bx + button_size and by < y < by + button_size:
+            last_click_time = current_time
+            if label == 'C':
+                result = ""
+            elif label == '=':
+                try:
+                    eval_result = eval(result)
+                    if isinstance(eval_result, float):
+                        eval_result = f"{eval_result:.4f}"
+                    result = str(eval_result)
+                except:
+                    result = "Error"
+            else:
+                result += label
+
+create_buttons()
