@@ -26,3 +26,13 @@ def create_buttons():
             y = y_start + i * button_size
             button_positions.append((x, y, labels[i * 4 + j]))
 
+def draw_buttons(img):
+    for (x, y, label) in button_positions:
+        overlay = img.copy()
+        cv2.rectangle(overlay, (x, y), (x + button_size, y + button_size), (150, 150, 150), -1)
+        alpha = 0.6  
+        cv2.addWeighted(overlay, alpha, img, 1 - alpha, 0, img)
+        cv2.rectangle(img, (x, y), (x + button_size, y + button_size), (255, 255, 255), 2)
+
+        cv2.putText(img, label, (x + 30, y + 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 3)
+
